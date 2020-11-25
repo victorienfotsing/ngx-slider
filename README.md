@@ -1,27 +1,23 @@
 # NgxRangeslider
 
-Angular Range Slider as seen on Discord.
-
-[Demo](https://codesandbox.io/s/jkuringx-slider-demo-d0k6h?file=/src/app/app.component.ts)
-
 ## Installation
 
 Using Angular CLI:
 
 ```sh
-ng add @jkuri/ngx-slider
+ng add @vfot/ngx-slider
 ```
 
 or
 
 ```sh
-npm install @jkuri/ngx-slider
+npm install @vfot/ngx-slider
 ```
 
 Then in your module:
 
 ```ts
-import { NgxSliderModule } from '@jkuri/ngx-slider';
+import { NgxSliderModule } from '@vfot/ngx-slider';
 
 @NgModule({
   imports: [NgxSliderModule]
@@ -37,7 +33,7 @@ In your template:
 And in your component (example):
 
 ```ts
-import { SliderValue, SliderOptions } from '@jkuri/ngx-slider';
+import { SliderValue, SliderOptions } from '@vfot/ngx-slider';
 
 fontSize = 14;
 fontSizeValues: SliderValue[] = [

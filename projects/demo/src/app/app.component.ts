@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { SliderValue, SliderOptions } from '@jkuri/ngx-slider';
+import { SliderOptions, SliderValue } from '@vfot/ngx-slider';
 
 @Component({
   selector: 'app-root',
@@ -7,10 +7,11 @@ import { SliderValue, SliderOptions } from '@jkuri/ngx-slider';
   styleUrls: ['./app.component.sass']
 })
 export class AppComponent {
+  title = 'demo';
   fontSize = 14;
   fontWeight = 400;
   fontSizeValues: SliderValue[] = Array(10).fill(null).map((_, k) => {
-    return { value: k + 8 , placeholder: (k + 8) + ''};
+    return { value: k + 8, placeholder: (k + 8) + '' };
   });
   fontWeightValues: SliderValue[] = [
     { value: 100, placeholder: 'thin' },

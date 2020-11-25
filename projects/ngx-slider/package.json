@@ -1,17 +1,11 @@
 {
-  "name": "@jkuri/ngx-slider",
-  "version": "0.2.0",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/jkuri/ngx-slider.git"
-  },
+  "name": "@vfot/ngx-slider",
+  "version": "1.0.3",
   "authors": [
-    "Jan Kuri <jkuri88@gmail.com>"
+    "Jan Kuri <jkuri88@gmail.com>",
+    "Victorien Fotsing <victorien@fotsing.de>"
   ],
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/jkuri/ngx-slider/issues"
-  },
   "keywords": [
     "slider",
     "angular",
@@ -21,9 +15,9 @@
     "ui"
   ],
   "peerDependencies": {
-    "@angular/common": "^9.1.11",
-    "@angular/core": "^9.1.11",
-    "@angular/forms": "^9.1.11"
+    "@angular/common": "^10.0.0",
+    "@angular/core": "^10.0.0",
+    "@angular/forms": "^10.0.0"
   },
   "dependencies": {
     "tslib": "^1.10.0"
