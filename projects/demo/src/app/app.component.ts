@@ -9,16 +9,9 @@ import { SliderValue, SliderOptions } from '@jkuri/ngx-slider';
 export class AppComponent {
   fontSize = 14;
   fontWeight = 400;
-  fontSizeValues: SliderValue[] = [
-    { value: 8, placeholder: '8px' },
-    { value: 12, placeholder: '12px' },
-    { value: 14, placeholder: '14px' },
-    { value: 15, placeholder: '15px' },
-    { value: 16, placeholder: '16px' },
-    { value: 18, placeholder: '18px' },
-    { value: 20, placeholder: '20px' },
-    { value: 24, placeholder: '24px' }
-  ];
+  fontSizeValues: SliderValue[] = Array(10).fill(null).map((_, k) => {
+    return { value: k + 8 , placeholder: (k + 8) + ''};
+  });
   fontWeightValues: SliderValue[] = [
     { value: 100, placeholder: 'thin' },
     { value: 300, placeholder: 'light' },

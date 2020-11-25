@@ -1,6 +1,6 @@
 {
-  "name": "@jkuri/ngx-slider",
-  "version": "0.0.0",
+  "name": "@vfot/ngx-slider",
+  "version": "0.0.1",
   "scripts": {
     "ng": "ng",
     "start": "ng serve demo --open --port 4220",

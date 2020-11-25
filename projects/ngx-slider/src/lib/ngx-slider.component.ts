@@ -1,18 +1,18 @@
 import {
   Component,
-  OnInit,
   ElementRef,
-  Renderer2,
+  HostListener,
   Input,
   OnChanges,
-  SimpleChanges,
   OnDestroy,
-  HostListener
+  OnInit,
+  Renderer2,
+  SimpleChanges
 } from '@angular/core';
-import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
-import { SliderOptions, defaultOptions, SliderValue } from './ngx-slider.interface';
-import { fromEvent, Subscription, merge } from 'rxjs';
-import { mergeMap, map, takeUntil } from 'rxjs/operators';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { defaultOptions, SliderOptions, SliderValue } from './ngx-slider.interface';
+import { fromEvent, merge, Subscription } from 'rxjs';
+import { map, mergeMap, takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'ngx-slider',
@@ -31,10 +31,11 @@ export class NgxSliderComponent implements ControlValueAccessor, OnInit, OnChang
   gridValues: HTMLElement;
   dashes: { v: SliderValue; el: HTMLElement; placeholder: HTMLElement; left: number }[];
   bar: HTMLElement;
+  // indicator: HTMLElement;
   sub = new Subscription();
 
-  private onTouchedCallback: () => void = () => {};
-  private onChangeCallback: (_: any) => void = () => {};
+  constructor(private elementRef: ElementRef, private renderer: Renderer2) {
+  }
 
   get value(): number {
     return this.innerValue;
@@ -44,8 +45,6 @@ export class NgxSliderComponent implements ControlValueAccessor, OnInit, OnChang
     this.innerValue = val;
     this.onChangeCallback(this.innerValue);
   }
-
-  constructor(private elementRef: ElementRef, private renderer: Renderer2) {}
 
   ngOnInit(): void {
     this.opts = { ...defaultOptions(), ...this.options };
@@ -68,7 +67,8 @@ export class NgxSliderComponent implements ControlValueAccessor, OnInit, OnChang
     this.destroy();
   }
 
-  draw(): void {}
+  draw(): void {
+  }
 
   init(): void {
     this.renderer.setStyle(this.grid, 'width', this.opts.width);
@@ -84,22 +84,29 @@ export class NgxSliderComponent implements ControlValueAccessor, OnInit, OnChang
     this.renderer.setStyle(this.gridValues, 'cursor', `pointer`);
 
     const [min, max] = [Math.min(...this.values.map(v => v.value)), Math.max(...this.values.map(v => v.value))];
-    this.dashes = [...this.values].map(v => {
+    this.dashes = [...this.values].map((v, index) => {
       const el = this.renderer.createElement('div');
       const top = this.gridValues.clientHeight / 2 - this.opts.dashHeight / 2;
       const leftPercent = ((v.value - min) / (max - min)) * 100;
       const left = Math.round((this.gridValues.clientWidth / 100) * leftPercent);
 
       this.renderer.appendChild(this.gridValues, el);
+      this.renderer.addClass(el, 'step');
       this.renderer.setStyle(el, 'background', this.opts.dashColor);
+      this.renderer.setStyle(el, 'border-radius', `${this.opts.dashBorderRadius}px`);
       this.renderer.setStyle(el, 'width', `${this.opts.dashWidth}px`);
       this.renderer.setStyle(el, 'height', `${this.opts.dashHeight}px`);
       this.renderer.setStyle(el, 'position', 'absolute');
       this.renderer.setStyle(el, 'top', `${top}px`);
       this.renderer.setStyle(el, 'left', `${left}px`);
-
+      this.renderer.setAttribute(el, 'data-breakpoint', `${v.value}`);
+      if (index % this.opts.step !== 0) {
+        this.renderer.addClass(el, 'hidden');
+        this.renderer.setStyle(el, 'opacity', 0);
+      }
       const placeholder = this.renderer.createElement('span');
       placeholder.innerHTML = v.placeholder;
+      this.renderer.addClass(placeholder, 'placeholder');
       this.renderer.setStyle(placeholder, 'position', 'absolute');
       this.renderer.setStyle(placeholder, 'color', this.opts.dashMarkColor);
       this.renderer.setStyle(placeholder, 'font-family', this.opts.dashMarkFont);
@@ -107,13 +114,14 @@ export class NgxSliderComponent implements ControlValueAccessor, OnInit, OnChang
       this.renderer.setStyle(placeholder, 'font-weight', this.opts.dashMarkFontWeight);
       this.renderer.setStyle(placeholder, 'user-select', 'none');
       this.renderer.appendChild(this.gridValues, placeholder);
-      this.renderer.setStyle(placeholder, 'top', `${top - (placeholder.clientHeight + this.opts.dashMarkPadding)}px`);
+      this.renderer.setStyle(placeholder, 'top', `${top - (placeholder.clientHeight + this.opts.dashMarkPadding) - 15}px`);
       this.renderer.setStyle(placeholder, 'left', `${left - placeholder.clientWidth / 2}px`);
 
       return { v, el, placeholder, left };
     });
 
     this.bar = this.renderer.createElement('span');
+    this.renderer.addClass(this.bar, 'bar');
     this.renderer.setStyle(this.bar, 'background', this.opts.barColor);
     this.renderer.setStyle(this.bar, 'width', `${this.opts.barWidth}px`);
     this.renderer.setStyle(this.bar, 'height', `${this.opts.barHeight}px`);
@@ -126,12 +134,15 @@ export class NgxSliderComponent implements ControlValueAccessor, OnInit, OnChang
     }
     const barLeftPercent = ((value - min) / (max - min)) * 100;
     const barLeft = Math.round((this.gridValues.clientWidth / 100) * barLeftPercent);
+
     this.renderer.setStyle(this.bar, 'top', `${this.gridValues.clientHeight / 2 - this.opts.barHeight / 2}px`);
     this.renderer.setStyle(this.bar, 'left', `${barLeft - this.opts.barWidth / 2}px`);
     this.renderer.appendChild(this.gridValues, this.bar);
 
+    this.dashes.forEach(d => this.renderer.removeClass(d.placeholder, 'active'));
     const current = this.dashes.find(d => d.v.value === value);
     this.renderer.setStyle(current.placeholder, 'color', this.opts.dashMarkSelectedColor);
+    this.renderer.addClass(current.placeholder, 'active');
   }
 
   setBarPosition(): void {
@@ -145,8 +156,41 @@ export class NgxSliderComponent implements ControlValueAccessor, OnInit, OnChang
     this.renderer.setStyle(this.bar, 'left', `${barLeft - this.opts.barWidth / 2}px`);
 
     this.dashes.forEach(d => this.renderer.setStyle(d.placeholder, 'color', this.opts.dashMarkColor));
+    this.dashes.forEach(d => this.renderer.removeClass(d.placeholder, 'active'));
     const current = this.dashes.find(d => d.v.value === value);
     this.renderer.setStyle(current.placeholder, 'color', this.opts.dashMarkSelectedColor);
+    this.renderer.addClass(current.placeholder, 'active');
+    const index = this.values.findIndex(v => v.value === value);
+    const gab = (max - min) / (this.values.length - 1);
+    const lowerLimit = value - ((index % this.opts.step) * gab);
+    let upperLimit = lowerLimit + this.opts.step * gab;
+    upperLimit = upperLimit > max ? max : upperLimit;
+
+    try {
+
+      const top = this.gridValues.clientHeight / 2 - this.opts.dashHeight / 2;
+      this.dashes.forEach(d => {
+        this.renderer.setStyle(d.el, 'background', this.opts.dashColor);
+        this.renderer.setStyle(d.el, 'border-radius', `${this.opts.dashBorderRadius}px`);
+        this.renderer.setStyle(d.el, 'width', `${this.opts.dashWidth}px`);
+        this.renderer.setStyle(d.el, 'height', `${this.opts.dashHeight}px`);
+        this.renderer.setStyle(d.el, 'top', `${top}px`);
+      });
+      const stepToChange = this.renderer.selectRootElement(`[data-breakpoint="${lowerLimit}"]`);
+      const newStepWidth = - this.renderer.selectRootElement(`[data-breakpoint="${lowerLimit}"]`)?.offsetLeft
+        + this.renderer.selectRootElement(`[data-breakpoint="${upperLimit}"]`)?.offsetLeft;
+      console.log(stepToChange);
+      this.renderer.setStyle(stepToChange, 'width', `${newStepWidth + this.opts.dashWidth / 2}px`);
+      this.renderer.setStyle(stepToChange, 'top', 0);
+      this.renderer.setStyle(stepToChange, 'height', `${this.opts.gridHeight}px`);
+      this.renderer.setStyle(stepToChange, 'border-radius', 0);
+      const color = this.opts?.indicatorColor?.find(c => value <= c.limit)?.color;
+      if (color) {
+        this.renderer.setStyle(stepToChange, 'background', color);
+      }
+    } catch (e) {
+
+    }
   }
 
   initClick(): void {
@@ -279,5 +323,11 @@ export class NgxSliderComponent implements ControlValueAccessor, OnInit, OnChang
     this.destroy();
     this.init();
     this.initDrag();
+  }
+
+  private onTouchedCallback: () => void = () => {
+  }
+
+  private onChangeCallback: (_: any) => void = () => {
   }
 }

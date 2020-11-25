@@ -14,3 +14,34 @@
       .rangeslider-grid-values
         display: block
         position: absolute
+
+  .bar
+    position: relative
+    box-shadow: 0 3px 6px #00000029
+    border: 1px solid #919191
+    &:before
+      content: ""
+      position: absolute
+      top: 5px
+      width: 80%
+      margin-left: 10%
+      height: 31%
+      border-radius: 0 0 100% 100%
+      background: transparent linear-gradient(0deg, #FFFFFF 0%, #E3EEF600 100%) 0 0 no-repeat padding-box
+    &:after
+      content: ""
+      position: absolute
+      bottom: 5px
+      width: 80%
+      margin-left: 10%
+      height: 31%
+      border-radius: 100% 100% 0 0
+      background: transparent linear-gradient(0deg, #BFBFBF00 0%, #9BA6AF 100%) 0 0 no-repeat padding-box
+
+  .step
+    transition: all 300ms ease-in-out
+
+  .placeholder
+    opacity: 0
+  .placeholder.active
+    opacity: 1
